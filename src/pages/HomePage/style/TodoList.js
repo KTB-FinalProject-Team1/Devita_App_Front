@@ -136,7 +136,7 @@ export const MissionCheckWrapper = styled.TouchableOpacity`
     height: 20px;
     border-radius: 10px; /* 원형 */
     border-width: 2px;
-    border-color: ${(props) => props.isChecked ? props.color || '#000' : '#aaa'}; /* 선택 여부에 따른 색상 */
+    border-color: ${(props) => props.isChecked ? props.color || '#000' : 'blue'}; /* 선택 여부에 따른 색상 */
     background-color: ${(props) => props.isChecked ? props.color || '#000' : 'transparent'}; /* 체크된 상태일 때 배경 색상 */
     align-items: center;
     justify-content: center;
