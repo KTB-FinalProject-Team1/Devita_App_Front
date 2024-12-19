@@ -3,7 +3,7 @@ import * as style from './style/TodoList'; // 기존 스타일 임포트
 import { useRecoilState } from 'recoil';
 import { Text } from 'react-native';
 import { todosState } from '../../recoil/atoms';
-import { deleteTodo } from '../../api/DeleteTodo'; // API 호출
+import deleteTodo  from '../../api/DeleteTodo'; // API 호출
 import { Alert } from 'react-native';
 
 const TodoItem = ({ todo, onCheckClick }) => {
@@ -39,7 +39,7 @@ const TodoItem = ({ todo, onCheckClick }) => {
 
     return (
         <style.MissionWrapper category={todo.categoryId} color={todo.color}>
-            <style.MissionCheckWrapper  isChecked={todo.isChecked} onPress={() => onCheckClick(todo.todoId)} color={todo.color}>
+            <style.MissionCheckWrapper  isChecked={todo.status} onPress={() => onCheckClick(todo.todoId)} color={todo.color}>
             </style.MissionCheckWrapper>
             <style.MissionTextWrapper>
                 <style.MissionText isChecked={todo.isChecked} >{todo.title}</style.MissionText>

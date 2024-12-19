@@ -1,24 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect} from "react";
 import { View, ActivityIndicator, Alert } from "react-native";
 import { WebView } from "react-native-webview";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BASE_URL } from "@env";
+console.log(BASE_URL);
+
 
 const KakaoLoginWebView = ({ navigation }) => {
     const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=3974cecc2e6156a32bfb904ff99de98e&redirect_uri=http://localhost:3000/callback`;
 
-    const handleNavigationStateChange = (event) => {
+
+    const handleNavigationStateChange = async (event) => {
         const { url } = event;
 
         if (url.startsWith("http://localhost:3000/callback")) {
-            // Redirect URI에서 Authorization Code 추출
             const code = new URL(url).searchParams.get("code");
+            console.log(code);
             if (code) {
-                Alert.alert("로그인 성공", `Authorization Code: ${code}`);
-                console.log("code:", code);
-                // 서버로 Authorization Code 전달
-                // 예: axios.post("http://your-server-url.com/kakao-auth", { code });
-                navigation.navigate("Main", { token: code });
+                // 서버에 Authorization Code 전달
+                const response = await axios.post(
+                    `${BASE_URL}/api/v1/auth/user/info`,
+                    { kakaoAccessToken: code }
+                );
+                const Infodata = response.data.data;
+
+
+                // AsyncStorage에 저장
+                if(response.status === 200) {
+                    console.log('응답',Infodata);
+                    console.log("AccessToken:", Infodata.accessToken);
+                    console.log("RefreshToken:", Infodata.refreshToken);
+                    console.log("Nickname:", Infodata.nickname);
+                    await AsyncStorage.setItem("accessToken", Infodata.accessToken);
+                    await AsyncStorage.setItem("refreshToken", Infodata.refreshToken);
+                    await AsyncStorage.setItem("nickname", Infodata.nickname);
+                    Alert.alert("로그인 성공");
+                    navigation.navigate('onboardingstack');
+                }else{
+                    Alert.alert("로그인 실패", "로그인 실패.", );
+                }
             } else {
-                console.log("로그인 실패", "Authorization Code를 찾을 수 없습니다.");
+                Alert.alert("로그인 실패", "Authorization Code를 찾을 수 없습니다.");
             }
         }
     };

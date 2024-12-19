@@ -1,7 +1,8 @@
 import axios from 'axios';
+import requestHandler from "./requestHandler";
 const BASE_URL = process.env.BASE_URL || "http://localhost:8080";
 
-export const getTodayMission = async () => {
+const GetTodayMission = async () => {
 
     try {
         const response = await axios.get(
@@ -21,3 +22,14 @@ export const getTodayMission = async () => {
         throw error;
     }
 };
+
+const getTodayMissionData = async () => {
+    return requestHandler({
+        method: 'GET',
+        endpoint: `/api/v1/mission/daily`,
+        successMessage:'일일 미션 호출 성공',
+        errorMessage: '일일 미션 호출 실패'
+    })
+}
+
+export default getTodayMissionData;

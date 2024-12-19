@@ -3,8 +3,8 @@ import * as style from './style/MyPage.main';
 import { useNavigation } from "@react-navigation/native";
 import CharacterFirst from './CharacterFirst';
 import CharacterSecond from './CharacterSecond';
-import { getCharacterInfo } from "../../api/GetCharacterInfo";
-import { updateNutrition } from "../../api/UpdateNutrition";
+import getCharacterInfo  from "../../api/GetCharacterInfo";
+import updateNutrition from "../../api/UpdateNutrition";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "react-native";
 import VitaminImg from '../../assets/img/Pill.png'
@@ -15,6 +15,7 @@ function MyPage() {
     const [experience, setExperience] = useState(null);
     const [vita, setVita] = useState(null);
     const handMoneyImg = require('../../assets/img/handMoney.png');
+    const nickname = AsyncStorage.getItem("nickname");
 
     const fetchCharacterInfo = async () => {
         try {
@@ -29,17 +30,8 @@ function MyPage() {
         }
     };
 
-    const fetchUserNickname = async () => {
-        try {
-            const nickname = await AsyncStorage.getItem("userNickname");
-            setUser(nickname || "사용자");
-        } catch (error) {
-            console.log('닉네임 불러오기 실패', error);
-        }
-    };
 
     useEffect(() => {
-        fetchUserNickname();
         fetchCharacterInfo();
     }, []);
 
@@ -70,7 +62,7 @@ function MyPage() {
             <style.Wrapper>
                 <style.UserNameWrapper>
                         <style.Name>
-                            {user}
+                            {nickname} 님의 캐릭터
                         </style.Name>
                 </style.UserNameWrapper>
 

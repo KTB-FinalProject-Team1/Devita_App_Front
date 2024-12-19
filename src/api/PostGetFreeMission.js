@@ -1,6 +1,7 @@
 import axios from 'axios';
+import requestHandler from "./requestHandler";
 
-export const getFreeMission = async (subCategory) => {
+const PostGetFreeMission = async (subCategory) => {
 
     try {
         const response = await axios.post(
@@ -20,3 +21,15 @@ export const getFreeMission = async (subCategory) => {
         throw error;
     }
 };
+
+const postGetFreeMission = async (subCategory) => {
+    return requestHandler({
+        method: 'POST',
+        data: { subCategory },
+        endpoint: `/api/v1/mission/free`,
+        successMessage: '자율 미션 호출 성공',
+        errorMessage: '자율 미션 호출 실패',
+    });
+}
+
+export default postGetFreeMission

@@ -1,7 +1,8 @@
 import axios from 'axios';
 const BASE_URL = process.env.BASE_URL || "http://localhost:8080";
+import requestHandler from "./requestHandler";
 
-export const deleteTodo = async (todoId) => {
+const DeleteTodo = async (todoId) => {
 
     try {
         const response = await axios.delete(
@@ -21,3 +22,18 @@ export const deleteTodo = async (todoId) => {
         throw error;
     }
 };
+
+
+const deleteTodo = async (todoId) => {
+    return requestHandler({
+        method: 'DELETE',
+        endpoint: `/api/v1/todo/${todoId}`,
+        successMessage: '할 일 삭제 성공',
+        errorMessage: '할 일 삭제 실패',
+    });
+};
+
+export default deleteTodo;
+
+
+

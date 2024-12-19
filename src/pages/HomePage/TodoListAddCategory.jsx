@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import * as style from './style/TodoListAddModal';
 import ButtonBlue from "../../components/Buttons/ButtonBlue";
-import { addCategory } from "../../api/AddCategory";
+import  addCategory  from "../../api/AddCategory";
 import { useRecoilState } from 'recoil';
 import { categoriesState } from '../../recoil/atoms';
+import getCategories from "../../api/GetCategories";
 import ColorPicker from './ColorPicker';
 
 
@@ -11,6 +12,7 @@ const AddCategoryModal = ({ isOpen, onClose }) => {
     const [newCategoryName, setNewCategoryName] = useState('');
     const [newCategoryColor, setNewCategoryColor] = useState('#CCCCCC');
     const [categories, setCategories] = useRecoilState(categoriesState);
+    const [isLoading, setIsLoading] = useState(false);
 
     if (!isOpen) return null;
 
@@ -24,7 +26,8 @@ const AddCategoryModal = ({ isOpen, onClose }) => {
             try {
                 const response = await addCategory(newCategoryName, newCategoryColor);
                 console.log('카테고리 추가 성공', response);
-                setCategories((prevCategories) => [...prevCategories, response]);
+                const updatedCategories = await fetchCategories();
+                setCategories(updatedCategories);
                 setNewCategoryName('');
                 setNewCategoryColor('#CCCCCC');
                 onClose();
@@ -33,6 +36,17 @@ const AddCategoryModal = ({ isOpen, onClose }) => {
             }
         }
     };
+
+    const fetchCategories = async () => {
+        try {
+            const response = await getCategories(); // 서버에서 카테고리 목록 재조회
+            return response; // 업데이트된 카테고리 반환
+        } catch (error) {
+            console.error("카테고리 로드 실패:", error.message);
+            return categories; // 실패 시 기존 상태 반환
+        }
+    };
+
 
     return (
         <style.CategoryOverLay>

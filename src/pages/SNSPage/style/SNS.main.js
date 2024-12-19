@@ -5,7 +5,6 @@ export const TotalWrapper = styled.View`
     width: 100%;
     height: 100%;
     flex-direction: column;
-    background-color: white;
     position: relative;
 `;
 
@@ -24,6 +23,16 @@ export const TitleText = styled.Text`
     font-size: 28px;
     font-weight: bold;
 `;
+
+export const SearchButton = styled.TouchableOpacity`
+    width: 43px;
+    height: 43px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50px;
+    background-color: #e9e9e9;
+`
 
 export const FeedWrapper = styled.ScrollView.attrs({
 

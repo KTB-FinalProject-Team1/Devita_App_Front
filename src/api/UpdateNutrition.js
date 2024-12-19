@@ -1,7 +1,8 @@
 import axios from 'axios';
+import requestHandler from "./requestHandler";
 const BASE_URL = process.env.BASE_URL || "http://localhost:8080";
 
-export const updateNutrition = async (todoId) => {
+const UpdateNutrition = async (todoId) => {
 
     try {
         const response = await axios.post(
@@ -23,3 +24,17 @@ export const updateNutrition = async (todoId) => {
         throw error;
     }
 };
+
+
+const updateNutrition = async () => {
+    return requestHandler({
+        method: 'Post',
+        data: {},
+        endpoint: `/api/v1/character/use/nutrition`,
+        successMessage: '영양제 업데이트 성공',
+        errorMessage: '영양제 업데이트 실패',
+    });
+}
+
+export default updateNutrition;
+

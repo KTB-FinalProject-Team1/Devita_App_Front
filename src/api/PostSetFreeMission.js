@@ -1,7 +1,8 @@
 import axios from 'axios';
+import requestHandler from "./requestHandler";
 const BASE_URL = process.env.BASE_URL || "http://localhost:8080";
 
-export const postSetFreeMission = async (selectedMission) => {
+const PostSetFreeMission = async (selectedMission) => {
 
     try {
         const response = await axios.post(
@@ -23,3 +24,16 @@ export const postSetFreeMission = async (selectedMission) => {
         throw error;
     }
 };
+
+const postSetFreeMission = async (selectedMission) => {
+    return requestHandler({
+        method: 'POST',
+        data: { selectedMission },
+        endpoint: `/api/v1/mission/free/save`,
+        successMessage: '미션 리스트 추가하기 성공',
+        errorMessage: '미션 리스트 추가하기 실패',
+    });
+}
+
+export default postSetFreeMission;
+

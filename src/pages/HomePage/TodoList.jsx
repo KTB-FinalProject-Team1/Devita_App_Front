@@ -1,176 +1,163 @@
 import React, { useEffect, useState } from 'react';
-import * as style from './style/TodoList'
-import { Text, View } from "react-native";
-import AddCategoryModal from './TodoListAddCategory';
-import TodoListAddModal from "./TodoListAddModal";
-import ButtonBlue from '../../components/Buttons/ButtonBlue';
-import TodoItem from './TodoItem';
+import * as style from './style/TodoList';
 import { useRecoilState } from 'recoil';
 import { todosState, categoriesState } from '../../recoil/atoms';
-import { addTodo } from '../../api/AddTodo';
-import { updateTodo } from '../../api/UpdateTodo';
+import addTodo from '../../api/AddTodo';
+import updateTodo from '../../api/UpdateTodo';
 import { getTodo } from '../../api/GetToDo';
-import { getCategories } from '../../api/GetCategories';
+import getCategories from '../../api/GetCategories';
+import TodoItem from './TodoItem';
 import ExampleTodos from "../../assets/DummyData/ExampleTodos";
-
 
 const TodoList = ({ selectedDate }) => {
     const [todos, setTodos] = useRecoilState(todosState);
     const [categories, setCategories] = useRecoilState(categoriesState);
     const [openCategory, setOpenCategory] = useState(null);
-
     const [inputValue, setInputValue] = useState('');
 
     const formattedDate = selectedDate.toLocaleDateString('en-CA');
-    // 날짜별로 할 일 필터링
-    const filteredTodos = ExampleTodos.filter(todo => todo.date === formattedDate);
 
-    // 날짜에서 categoryId 별로 그룹화
-    const groupedTodos = filteredTodos.reduce((groups, todo) => {
-        if (!groups[todo.categoryId]) {
-            groups[todo.categoryId] = {
-                categoryName: todo.categoryName,
-                color: todo.color,
-                todos: [],
-            };
+    // 카테고리와 해당 날짜의 할 일 목록 그룹화
+    const groupedTodos = categories.map((category) => ({
+        ...category,
+        todos: todos.filter((todo) => todo.categoryId === category.id && todo.date === formattedDate),
+    }));
+    console.log('확인용',groupedTodos);
+
+    const fetchData = async () => {
+        try {
+            const categoriesData = await getCategories();
+            const todosData = await getTodo('monthly');
+            setCategories(categoriesData);
+            setTodos(todosData);
+        } catch (error) {
+            console.error("데이터 로드 실패:", error);
+            setCategories([]);
+            setTodos(ExampleTodos);
         }
-        groups[todo.categoryId].todos.push(todo);
-        return groups;
-    }, {});
-
+    };
 
     const handleAddTodo = async (todoText, categoryId) => {
-        const todoData = {
+        const newTodo = {
             categoryId,
             title: todoText,
             date: formattedDate,
             todoId: Math.random().toString(36).substring(7), // 임시 ID
-            isChecked: false, // 기본 상태
-            isTemp: true, // 임시 데이터 여부
+            isChecked: false,
+            isTemp: true,
         };
 
-        // 임시로 상태 업데이트
-        setTodos((prevTodos) => [...prevTodos, todoData]);
+        // 낙관적 상태 업데이트 (UI에 즉시 반영)
+        setTodos((prevTodos) => [...prevTodos, newTodo]);
 
         try {
-            // API 호출
-            const response = await addTodo(todoData.categoryId, todoData.title, todoData.date);
+            const response = await addTodo(categoryId, todoText, formattedDate);
 
-            // 성공 시, 서버에서 받은 데이터로 상태 업데이트
+            // 서버 응답으로 업데이트
             setTodos((prevTodos) =>
                 prevTodos.map((todo) =>
-                    todo.todoId === todoData.todoId ? { ...todo, ...response, isTemp: false } : todo
+                    todo.todoId === newTodo.todoId ? { ...todo, ...response, isTemp: false } : todo
                 )
             );
+            fetchData();
         } catch (error) {
             console.error("할 일 추가 실패:", error);
-
-            // 실패 처리 (필요에 따라 사용자에게 알림 표시)
-            setTodos((prevTodos) =>
-                prevTodos.map((todo) =>
-                    todo.todoId === todoData.todoId ? { ...todo, isTemp: true } : todo
-                )
-            );
+            setTodos((prevTodos) => prevTodos.filter((todo) => todo.todoId !== newTodo.todoId));
         }
     };
 
-    const handleToggleClick = async (todoId) => {
+    const handleToggleClick = async (todoId, currentStatus) => {
+        const newStatus = !currentStatus;
+
         try {
-            await updateTodo(todoId);
-            setTodos(prevTodos =>
-                prevTodos.map(todo =>
-                    todo.todoId === todoId ? { ...todo, isChecked: !todo.isChecked } : todo
+            await updateTodo(todoId, newStatus);
+
+            setTodos((prevTodos) =>
+                prevTodos.map((todo) =>
+                    todo.todoId === todoId ? { ...todo, status: newStatus } : todo
                 )
             );
         } catch (error) {
-
-            // 실패해도 상태를 반영
-            setTodos(prevTodos =>
-                prevTodos.map(todo =>
-                    todo.todoId === todoId ? { ...todo, isChecked: !todo.isChecked, isTemp: true } : todo
-                )
-            );
-            console.log('상태변경',todos);
+            console.error('상태 변경 실패:', error);
+        }
+    };
+    const handleRefresh = async () => {
+        try {
+            const categoriesData = await getCategories();
+            const todosData = await getTodo('monthly');
+            setCategories(categoriesData);
+            setTodos(todosData);
+            Alert.alert("새로고침 성공", "데이터가 성공적으로 업데이트되었습니다.");
+        } catch (error) {
+            console.error("새로고침 실패:", error);
+            Alert.alert("새로고침 실패", "데이터를 업데이트하지 못했습니다.");
         }
     };
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const categoriesData = await getCategories();
-                const todosData = await getTodo('monthly');
-                setCategories(categoriesData);
-                setTodos(todosData);
-            } catch (error) {
-                console.error("데이터 로드 실패, ExampleTodos로 대체합니다:",ExampleTodos);
-                setCategories([]); // 카테고리 데이터 초기화
-                setTodos(ExampleTodos); // ExampleTodos로 대체
-            }
-        };
         fetchData();
-    }, [setCategories, setTodos]);
+    }, []);
 
     return (
         <style.TotalWrapper>
             <style.MissionTotalWrapper>
-                {Object.keys(groupedTodos).map(categoryId => {
-                    const group = groupedTodos[categoryId];
-                    return (
-                        <style.CategoryWrapper key={categoryId} color={group.color}>
-                            <style.CategoryTitleWrapper>
-                                <style.CategoryTitle>{group.categoryName}</style.CategoryTitle>
-                                <style.TodoListAddButton
+                {groupedTodos.map((group) => (
+                    <style.CategoryWrapper key={group.id} color={group.color}>
+                        <style.CategoryTitleWrapper>
+                            <style.CategoryTitle>{group.name}</style.CategoryTitle>
+                            if(
+                            <style.TodoListAddButton
+                                color={
+                                group.name === '일일 미션' || group.name ==='자율 미션' ? 'gray' : group.color
+                                }
+                                onPress={() => {
+                                    if (group.name !== '일일 미션' && group.name !== '자율 미션') {
+                                        setOpenCategory(group.id);
+                                    }
+                                }}
+                                disabled={group.name === '일일 미션' || group.name === '자율 미션'}
+                                style={{opacity: group.name === '일일 미션' || group.name === '자율 미션' ? 0.5 : 1}} // 비활성화 시 투명도 조절
+                            >
+                                <style.TodoListAddButtonText>+</style.TodoListAddButtonText>
+                            </style.TodoListAddButton>
+                        </style.CategoryTitleWrapper>
+
+                        {/* 할 일 목록 */}
+                        <style.MissionFrame>
+                            {group.todos.map((todo) => (
+                                <TodoItem
+                                    key={todo.todoId}
+                                    todo={todo}
+                                    onCheckClick={() => handleToggleClick(todo.todoId, todo.status)}
+                                />
+                            ))}
+                        </style.MissionFrame>
+
+                        {/* 할 일 추가 입력 */}
+                        {openCategory === group.id && (
+                            <style.InputWrapper>
+                                <style.InputTodoWrapper
                                     color={group.color}
+                                    value={inputValue}
+                                    onChangeText={setInputValue}
+                                    placeholder="할 일을 추가하세요"
+                                    placeholderTextColor={group.color || '#aaa'}
+                                />
+                                <style.AddButton
                                     onPress={() => {
-                                        setOpenCategory(categoryId);
-                                    }}>
-                                    <style.TodoListAddButtonText>+</style.TodoListAddButtonText>
-                                </style.TodoListAddButton>
-                            </style.CategoryTitleWrapper>
-                            <style.MissionFrame>
-                                {group.todos.map(todo => (
-                                    <TodoItem
-                                        key={todo.todoId}
-                                        todo={todo}
-                                        onCheckClick={() => handleToggleClick(todo.todoId)}
-                                        isChecked={todo.isChecked}
-                                    />
-                                ))}
-                            </style.MissionFrame>
-                            { openCategory === categoryId ? (
-                                    <style.InputWrapper>
-                                        <style.InputTodoWrapper
-                                            color={group.color}
-                                            type="text"
-                                            value={inputValue} // 현재 입력값
-                                            onChange={(e) => setInputValue(e.target.value)} // 입력값 업데이트
-                                            placeholder="할 일을 추가하세요"
-                                            placeholderTextColor={group.color || '#aaa'}
-                                        />
-                                        <style.AddButton
-                                            onPress={() => {
-                                                if (inputValue) {
-                                                    handleAddTodo(inputValue, categoryId); // 카테고리에 따라 추가
-                                                    setInputValue(''); // 입력값 초기화
-                                                }
-                                            }}
-                                        >
-                                            <style.AddButtonText>추가</style.AddButtonText>
-                                        </style.AddButton>
-                                    </style.InputWrapper>
-
-
-                            ) : (
-                                <View></View>
-                            )};
-
-                        </style.CategoryWrapper>
-                    );
-                })}
+                                        if (inputValue) {
+                                            handleAddTodo(inputValue, group.id);
+                                            setInputValue('');
+                                        }
+                                    }}
+                                >
+                                    <style.AddButtonText>추가</style.AddButtonText>
+                                </style.AddButton>
+                            </style.InputWrapper>
+                        )}
+                    </style.CategoryWrapper>
+                ))}
             </style.MissionTotalWrapper>
-
-
-
         </style.TotalWrapper>
     );
 };

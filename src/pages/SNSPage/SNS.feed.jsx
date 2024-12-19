@@ -6,14 +6,14 @@ import profileImg1 from "../../assets/img/profile1.png"
 
 function SNSFeed({sns}) {
 
-    const { userName, userProfileImg, userText, userImages, userLikes } = sns;
+    const { writerNickname, userProfileImg, description, images, likes } = sns;
     const navigation = useNavigation();
 
     const MAX_LENGTH = 18;
     const displayedText =
-        userText.length >MAX_LENGTH ?
-            `${userText.substring(0, MAX_LENGTH)}...` :
-            userText;
+        description.length >MAX_LENGTH ?
+            `${description.substring(0, MAX_LENGTH)}...` :
+            description;
 
     const handleNavigate = () => {
         navigation.navigate('SNSStoryMain', {sns});
@@ -24,10 +24,10 @@ function SNSFeed({sns}) {
         <style.TotalButtonContainer onPress={handleNavigate}>
             <style.TotalContainer>
                 <style.UserImageWrapper>
-                    <style.UserImage source={userProfileImg} />
+                    <style.UserImage source={profileImg1} />
                 </style.UserImageWrapper>
                 <style.ContentWrapper>
-                    <style.UserName>{userName}</style.UserName>
+                    <style.UserName>{writerNickname}</style.UserName>
                     <style.UserContent>{displayedText}</style.UserContent>
                 </style.ContentWrapper>
 

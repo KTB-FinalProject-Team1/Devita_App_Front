@@ -50,16 +50,17 @@ export const MissionTotalWrapper = styled.View`
 export const CategoryWrapper = styled.View`
     width: 100%;
     border-radius: 12px;
-    border: 1.5px solid ${props => props.color};
+    border: 1.5px solid ${props => props.color || '#000'}; // 기본값: #000
     background-color: ${props => {
-        const hexToRgba = (hex, alpha) => {
-            const r = parseInt(hex.slice(1, 3), 16);
-            const g = parseInt(hex.slice(3, 5), 16);
-            const b = parseInt(hex.slice(5, 7), 16);
-            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-        };
-        return hexToRgba(props.color, 0.1); // 0.5는 50% 투명도를 의미합니다.
-    }};
+    const hexToRgba = (hex, alpha) => {
+        if (!hex || hex.length !== 7) return `rgba(0, 0, 0, ${alpha})`; // 안전한 기본값
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
+    return props.color ? hexToRgba(props.color, 0.1) : 'rgba(0, 0, 0, 0.1)';
+}};
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -136,7 +137,7 @@ export const MissionCheckWrapper = styled.TouchableOpacity`
     height: 20px;
     border-radius: 10px; /* 원형 */
     border-width: 2px;
-    border-color: ${(props) => props.isChecked ? props.color || '#000' : 'blue'}; /* 선택 여부에 따른 색상 */
+    border-color: ${(props) => props.isChecked ? props.color : '#aaa'}; /* 선택 여부에 따른 색상 */
     background-color: ${(props) => props.isChecked ? props.color || '#000' : 'transparent'}; /* 체크된 상태일 때 배경 색상 */
     align-items: center;
     justify-content: center;
@@ -166,6 +167,7 @@ export const InputWrapper = styled.View`
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    margin-top: 7px;
 
 `;
 export const InputTodoWrapper = styled.TextInput`

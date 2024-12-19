@@ -6,6 +6,12 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import profileImg1 from "../../assets/img/profile1.png";
 import leftImage from "../../assets/img/left.png";
 import ImageComponent from "./ImageComponent";
+const userProfileImg1 = require("../../assets/img/profile1.png");
+import postFollow from "../../api/PostFollow";
+import deleteFollow from "../../api/DeleteFollow";
+import postLike from "../../api/PostLike";
+import deleteLike from "../../api/DeleteLike";
+
 
 function SNSStoryMain({ route }) {
     const { sns } = route.params;
@@ -14,11 +20,47 @@ function SNSStoryMain({ route }) {
     const navigation = useNavigation();
 
 
-    const toggleLike = () => {
-        setLiked((prev) => !prev);
+    const toggleLike = async () => {
+        try {
+            if (!liked) {
+                // 현재 좋아요 상태가 false인 경우, 좋아요 요청 실행
+                const response = await postLike(sns.id); // sns.id는 게시물의 고유 ID
+                console.log('좋아요 응답:', response);
+                alert('좋아요 완료');
+            } else {
+                // 현재 좋아요 상태가 true인 경우, 좋아요 취소 요청 실행
+                const response = await deleteLike(sns.id); // sns.id는 게시물의 고유 ID
+                console.log('좋아요 취소 응답:', response);
+                alert('좋아요 취소 완료');
+            }
+
+            // 상태 토글
+            setLiked((prev) => !prev);
+        } catch (error) {
+            console.error(liked ? '좋아요 취소 실패:' : '좋아요 실패:', error);
+            alert(liked ? '좋아요 취소 요청에 실패했습니다.' : '좋아요 요청에 실패했습니다.');
+        }
     };
-    const toggleFollow = () => {
-        setIsFollowing((prev) => !prev);
+    const toggleFollow = async () => {
+        try {
+            if (!isFollowing) {
+                // 현재 팔로우 상태가 false인 경우, 팔로우 요청 실행
+                const response = await postFollow(sns.writerId);
+                console.log('팔로우 응답:', response);
+                alert('팔로우 완료');
+            } else {
+                // 현재 팔로우 상태가 true인 경우, 언팔로우 요청 실행
+                const response = await deleteFollow(sns.writerId);
+                console.log('언팔로우 응답:', response);
+                alert('언팔로우 완료');
+            }
+
+            // 상태 토글
+            setIsFollowing((prev) => !prev);
+        } catch (error) {
+            console.error(isFollowing ? '언팔로우 실패:' : '팔로우 실패:', error);
+            alert(isFollowing ? '언팔로우 요청에 실패했습니다.' : '팔로우 요청에 실패했습니다.');
+        }
     };
     const handleGoback = () => {
         navigation.goBack();
@@ -35,9 +77,9 @@ function SNSStoryMain({ route }) {
                     </style.GoBackButton>
                 </style.MenuWrapper>
                 <style.UserImageWrapper>
-                    <style.UserImage source={sns.userProfileImg}/>
+                    <style.UserImage source={userProfileImg1}/>
                     <style.UserNameWrapper>
-                        <style.UserName>{sns.userName}</style.UserName>
+                        <style.UserName>{sns.writerNickname}</style.UserName>
                     </style.UserNameWrapper>
                     <style.FollowButton onPress={toggleFollow} color={isFollowing ? '#7DB1FF' : '#e9e9e9'}>
                         <style.FollowText color={isFollowing? 'white':'gray'}>{isFollowing ? '팔로잉' : '팔로우'}</style.FollowText>
@@ -45,13 +87,12 @@ function SNSStoryMain({ route }) {
                 </style.UserImageWrapper>
                 <style.UserContentWrapper>
                     <style.UserTextWrapper>
-                        <style.UserText>{sns.userText}</style.UserText>
+                        <style.UserText>{sns.description}</style.UserText>
                     </style.UserTextWrapper>
                     <style.UserImagesContainer>
                         <style.UserImagesWrapper>
-                            {sns.userImages.map((imageSource, index) => (
-                                console.log(imageSource),
-                                    <ImageComponent key={index} source={imageSource} height={200}/>
+                            {sns.images.map((imageSource, index) => (
+                                    <ImageComponent key={index} source={{ uri: imageSource }} />
                             ))}
                         </style.UserImagesWrapper>
                     </style.UserImagesContainer>
@@ -66,7 +107,7 @@ function SNSStoryMain({ route }) {
                                 color={liked ? 'white' : 'gray'}
                             />
                             <style.UserLikeText color={liked ? 'white' : 'gray'}>
-                                {sns.userLikes}k
+                                {sns.likes}k
                             </style.UserLikeText>
                         </style.UserLike>
                     </style.UserLikeWrapper>

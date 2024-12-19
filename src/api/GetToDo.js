@@ -1,22 +1,10 @@
-import axios from 'axios';
-const BASE_URL = process.env.BASE_URL || "http://localhost:8080";
+import requestHandler from './requestHandler'
 
 export const getTodo = async (viewType) => {
-    try {
-        const response = await axios.get(`${BASE_URL}/api/v1/todo/calendar?viewType=${viewType}`, {
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: 'Bearer ' + sessionStorage.getItem('accessToken'),
-            },
-            withCredentials: true,
-            timeout: 60000
-        });
-        console.error("todolist 불러오기  성공", response.data);
-        return response.data.data;
-
-    } catch (error) {
-        console.error("todolist 불러오기  실패", error.message);
-
-        throw error;
-    }
+    return requestHandler({
+        method: 'GET',
+        endpoint: `/api/v1/todo/calendar?viewType=${viewType}`,
+        successMessage: 'todolist 불러오기 성공',
+        errorMessage: 'todolist 불러오기 실패',
+    });
 };

@@ -1,7 +1,8 @@
 import axios from 'axios';
+import requestHandler from "./requestHandler";
 const BASE_URL = process.env.BASE_URL || "http://localhost:8080";
 
-export const settingStack = async (selectedCategories) => {
+const SettingStack = async (selectedCategories) => {
 
     try {
         const response = await axios.put(
@@ -21,3 +22,15 @@ export const settingStack = async (selectedCategories) => {
         throw error;
     }
 };
+
+const settingStack = async (selectedCategories) => {
+    return requestHandler({
+        method: 'PUT',
+        data: { categories: selectedCategories },
+        endpoint: `/api/v1/users/me/preferred-categories`,
+        successMessage: '스택 설정 성공',
+        errorMessage: '스택 설정 실패',
+    });
+}
+
+export default settingStack

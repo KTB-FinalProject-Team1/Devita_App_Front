@@ -7,23 +7,43 @@ import profileImg1 from "../../assets/img/profile1.png";
 import Post1 from "../../assets/img/Post1.png";
 import Post2 from "../../assets/img/Post2.png";
 import ImageComponent from "./ImageComponent";
+import postLike from "../../api/PostLike";
+import deleteLike from "../../api/DeleteLike";
 
 function SNSStory({sns}) {
-    const { userName, userProfileImg, userText, userImages, userLikes } = sns;
-    const images = [Post1, Post2, Post1];
+    const { writerNickname, writerImageUrl, description, images, likes, id } = sns;
+    console.log(writerImageUrl);
     const navigation = useNavigation();
 
     const [liked, setLiked] = useState(false);
-    const toggleLike = () => {
-        setLiked((prev) => !prev);
+    const toggleLike = async () => {
+        try {
+            if (!liked) {
+                // 현재 좋아요 상태가 false인 경우, 좋아요 요청 실행
+                const response = await postLike(id); // sns.id는 게시물의 고유 ID
+                console.log('좋아요 응답:', response);
+                alert('좋아요 완료');
+            } else {
+                // 현재 좋아요 상태가 true인 경우, 좋아요 취소 요청 실행
+                const response = await deleteLike(id); // sns.id는 게시물의 고유 ID
+                console.log('좋아요 취소 응답:', response);
+                alert('좋아요 취소 완료');
+            }
+
+            // 상태 토글
+            setLiked((prev) => !prev);
+        } catch (error) {
+            console.error(liked ? '좋아요 취소 실패:' : '좋아요 실패:', error);
+            alert(liked ? '좋아요 취소 요청에 실패했습니다.' : '좋아요 요청에 실패했습니다.');
+        }
     };
 
     // 텍스트 제한
     const MAX_TEXT_LENGTH = 200;
     const displayedText =
-        userText.length > MAX_TEXT_LENGTH
-            ? `${userText.substring(0, MAX_TEXT_LENGTH)}...`
-            : userText;
+        description.length > MAX_TEXT_LENGTH
+            ? `${description.substring(0, MAX_TEXT_LENGTH)}...`
+            : description;
 
     const handleNavigate = () => {
         navigation.navigate('SNSStoryMain', {sns});
@@ -33,19 +53,19 @@ function SNSStory({sns}) {
         <style.TotalStoryContainer>
             <style.TotalContainer>
                 <style.UserImageWrapper>
-                    <style.UserImage source={userProfileImg} />
+                    <style.UserImage source={profileImg1}/>
                 </style.UserImageWrapper>
                 <style.UserContentWrapper>
-                    <style.UserNameWrapper>
-                        <style.UserName>{userName}</style.UserName>
+                <style.UserNameWrapper>
+                        <style.UserName>{writerNickname}</style.UserName>
                     </style.UserNameWrapper>
                     <style.UserTextWrapper onPress={handleNavigate}>
                         <style.UserText>{displayedText}</style.UserText>
                     </style.UserTextWrapper>
                     <style.UserImagesContainer>
                         <style.UserImagesWrapper>
-                            {userImages.map((imageSource, index) => (
-                                <ImageComponent key={index} source={imageSource} />
+                            {images.map((imageSource, index) => (
+                                <ImageComponent key={index} source={{ uri: imageSource }} />
                             ))}
                         </style.UserImagesWrapper>
                     </style.UserImagesContainer>
@@ -60,7 +80,7 @@ function SNSStory({sns}) {
                                 color={liked ? 'white' : 'gray'}
                             />
                             <style.UserLikeText color={liked ? 'white' : 'gray'}>
-                                {userLikes}k
+                                {likes}k
                             </style.UserLikeText>
                         </style.UserLike>
                     </style.UserLikeWrapper>

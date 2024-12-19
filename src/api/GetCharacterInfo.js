@@ -1,8 +1,9 @@
 import axios from 'axios';
 const BASE_URL = process.env.BASE_URL || "http://localhost:8080";
+import requestHandler from "./requestHandler";
 
 
-export const getCharacterInfo = async () => {
+const GetCharacterInfo = async () => {
 
     try {
         const response = await axios.get(
@@ -22,3 +23,15 @@ export const getCharacterInfo = async () => {
         throw error;
     }
 };
+
+const getCharacterInfo = async () => {
+    return requestHandler({
+        method: 'GET',
+        endpoint: `/api/v1/users/me`,
+        successMessage: '캐릭터 정보 성공',
+        errorMessage: '캐릭터 정보 실패',
+    });
+};
+
+export default getCharacterInfo;
+

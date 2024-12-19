@@ -1,7 +1,8 @@
 import axios from 'axios';
 const BASE_URL = process.env.BASE_URL || "http://localhost:8080";
+import requestHandler from "./requestHandler";
 
-export const addTodo = async (categoryId = 0, title, date) => {
+const AddTodo = async (categoryId = 0, title, date) => {
     const todoData = { categoryId, title, date };
 
     console.log("전송할 데이터:", todoData); // 데이터 확인용 콘솔 출력
@@ -25,3 +26,16 @@ export const addTodo = async (categoryId = 0, title, date) => {
         throw error;
     }
 };
+const addTodo = async (categoryId = 0, title, date) => {
+    const todoData = { categoryId, title, date };
+    return requestHandler({
+        method: 'POST',
+        endpoint: '/api/v1/todo',
+        data: todoData,
+        successMessage: '투두리스트 추가 성공',
+        errorMessage: '투두리스트 추가 실패'
+    });
+};
+
+export default addTodo;
+

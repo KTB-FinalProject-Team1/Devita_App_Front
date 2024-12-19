@@ -4,10 +4,9 @@ import { useNavigation } from '@react-navigation/native';
 import * as style from "./style/AI.main";
 import { Text } from 'react-native';
 import CategoryData from "../../assets/DummyData/Category";
-import { getFreeMission } from "../../api/GetFreeMission";
-import { postSetFreeMission } from "../../api/PostSetFreeMission";
+import  getFreeMission  from "../../api/PostGetFreeMission";
+import postSetFreeMission from "../../api/PostSetFreeMission";
 import reset from "../../assets/img/reset.png";
-console.log(CategoryData);
 
 function AIPage() {
     const [selectedTopCategory, setSelectedTopCategory] = useState(null);
@@ -117,7 +116,7 @@ function AIPage() {
             try {
                 await postSetFreeMission(selectedMission.missionTitle);
                 alert("Mission successfully added!");
-                navigation.navigate("/");
+                navigation.navigate("Main");
             } catch (error) {
                 console.error("Failed to add mission:", error);
             }
