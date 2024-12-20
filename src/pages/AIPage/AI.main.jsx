@@ -7,6 +7,11 @@ import CategoryData from "../../assets/DummyData/Category";
 import  getFreeMission  from "../../api/PostGetFreeMission";
 import postSetFreeMission from "../../api/PostSetFreeMission";
 import reset from "../../assets/img/reset.png";
+import getCategories from "../../api/GetCategories";
+import {getTodo} from "../../api/GetToDo";
+import ExampleTodos from "../../assets/DummyData/ExampleTodos";
+import {useRecoilState} from "recoil";
+import {categoriesState, todosState} from "../../recoil/atoms";
 
 function AIPage() {
     const [selectedTopCategory, setSelectedTopCategory] = useState(null);
@@ -16,6 +21,8 @@ function AIPage() {
     const [freeMissions, setFreeMissions] = useState([]);
     const [selectedMission, setSelectedMission] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [todos, setTodos] = useRecoilState(todosState);
+    const [categories, setCategories] = useRecoilState(categoriesState);
 
     const navigation = useNavigation();
 
@@ -89,7 +96,8 @@ function AIPage() {
             setIsLoading(true);
             try {
                 const response = await getFreeMission(selectedSubCategory);
-                setFreeMissions(response.data || []);
+                setFreeMissions(response || []);
+                console.log('생성된 미션',response);
                 setIsGenerated(true);
             } catch (error) {
                 console.error("Error generating mission:", error);
@@ -111,11 +119,30 @@ function AIPage() {
         setSelectedMission(mission);
     };
 
+    const fetchData = async () => {
+        try {
+            const categoriesData = await getCategories();
+            const todosData = await getTodo('monthly');
+            setCategories(categoriesData);
+            setTodos(todosData);
+        } catch (error) {
+            console.error("데이터 로드 실패:", error);
+            setCategories([]);
+            setTodos(ExampleTodos);
+        }
+    };
+
     const handleMissionAdd = async () => {
         if (selectedMission) {
+            console.log(selectedMission);
+            const selectedMissionData = {
+                "missionTitle": selectedMission.missionTitle,
+                "missionCategory": selectedMission.category,
+            }
             try {
-                await postSetFreeMission(selectedMission.missionTitle);
+                await postSetFreeMission(selectedMissionData);
                 alert("Mission successfully added!");
+                fetchData()
                 navigation.navigate("Main");
             } catch (error) {
                 console.error("Failed to add mission:", error);
@@ -124,6 +151,9 @@ function AIPage() {
             alert("Please select a mission first!");
         }
     };
+
+
+
     const handleReload = () => {
         setSelectedTopCategory(null);
         setSelectedSubCategory(null);

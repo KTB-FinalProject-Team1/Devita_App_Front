@@ -46,7 +46,7 @@ function HomePage() {
             <style.TodoCategoryAddButton onPress={toggleModal}>
                 <style.TodoCategoryAddButtonText>+</style.TodoCategoryAddButtonText>
             </style.TodoCategoryAddButton>
-            <AddCategoryModal isOpen={isModalOpen} onClose={toggleModal} />
+            <AddCategoryModal isOpen={isModalOpen} onClose={toggleModal}/>
         </style.Wrapper>
     );
 }

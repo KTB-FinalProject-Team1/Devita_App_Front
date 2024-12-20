@@ -1,23 +1,42 @@
-import React, { useState } from 'react';
-import {View, Image, TouchableOpacity, StyleSheet, ScrollView, Alert} from 'react-native';
+import React, { useState, useRef } from 'react';
+import {View, Image, TouchableOpacity, StyleSheet, ScrollView, Alert, TextInput, Platform} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as style from "./style/SNS.write";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import leftImage from "../../assets/img/left.png";
-import InputField from "./InputField";
 import MarkDownToolBar from "./MarkDownToolBar";
 import ImageUploader from "./ImageUploader";
 import sampleUserProfileImg from '../../assets/img/profile1.png';
-
+import GetPosts from "../../api/GetPosts";
 import postFeed from "../../api/PostFeed";
+import {useRecoilState} from "recoil";
+import {postsState} from "../../recoil/atoms";
 
 function SNSStoryMain() {
     const [storyContent, setStoryContent] = useState('');
-    const [selectedImages, setSelectedImages] = useState([]); // 배열로 변경
+    const [selectedImages, setSelectedImages] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [posts, setPosts] = useRecoilState(postsState);
 
+
+    const inputRef = useRef(null);
     const navigation = useNavigation();
     const sampleUserName = AsyncStorage.getItem('nickname');
+
+    const fetchPosts = async () => {
+        setLoading(true);
+        try {
+            const response = await GetPosts();
+            const content = response.content;
+            setPosts(content);
+            console.log('Posts 불러오기 성공:', content);
+        } catch (error) {
+            console.error('Posts 불러오기 실패:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleGoback = () => {
         navigation.goBack();
@@ -31,11 +50,11 @@ function SNSStoryMain() {
     };
 
     const handleImageSelect = (uri) => {
-        setSelectedImages((prev) => [...prev, uri]); // 새 이미지를 배열에 추가
+        setSelectedImages((prev) => [...prev, uri]);
     };
 
     const handleRemoveImage = (index) => {
-        setSelectedImages((prev) => prev.filter((_, i) => i !== index)); // 특정 이미지 삭제
+        setSelectedImages((prev) => prev.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async () => {
@@ -45,21 +64,19 @@ function SNSStoryMain() {
         }
 
         const feedData = {
-            title : "User Story",
-            description : storyContent,
+            title: "User Story",
+            description: storyContent,
             imageUrls: selectedImages,
         }
 
         console.log(feedData);
 
         try {
-            // API call to submit the feed data
             const response = await postFeed(feedData);
             console.log('API 응답:', response);
-
-            // Success feedback to the user
             Alert.alert('성공', '스토리가 성공적으로 업로드되었습니다.');
-            navigation.goBack(); // Navigate back to the previous screen
+            fetchPosts();
+            navigation.goBack();
         } catch (error) {
             console.error('스토리 업로드 실패:', error);
             Alert.alert('실패', '스토리 업로드에 실패했습니다.');
@@ -77,7 +94,7 @@ function SNSStoryMain() {
                 },
                 {
                     text: '확인',
-                    onPress: handleSubmit, // 확인 버튼 누르면 handleSubmit 실행
+                    onPress: handleSubmit,
                 },
             ],
             { cancelable: false }
@@ -91,7 +108,7 @@ function SNSStoryMain() {
                     <style.GoBackButton onPress={handleGoback}>
                         <style.GoBackImage source={leftImage} />
                     </style.GoBackButton>
-                    <style.SubmitButton onPress={ confirmSubmit }>
+                    <style.SubmitButton onPress={confirmSubmit}>
                         <style.SubmitButtonText>
                             작성 완료
                         </style.SubmitButtonText>
@@ -106,11 +123,31 @@ function SNSStoryMain() {
 
                 <style.UserContentWrapper>
                     <style.UserContentWriteWrapper>
-                        <InputField
+                        <TextInput
+                            ref={inputRef}
+                            style={{
+                                flex: 1,
+                                textAlignVertical: 'top',
+                                padding: 10,
+                                fontSize: 16,
+                                fontFamily: 'Apple SD Gothic Neo',
+                                ...Platform.select({
+                                    android: {
+                                        textBreakStrategy: 'simple'
+                                    }
+                                })
+                            }}
                             value={storyContent}
                             onChangeText={setStoryContent}
                             placeholder="스토리를 입력하세요"
-                            multiline
+                            multiline={true}
+                            autoFocus={false}
+                            blurOnSubmit={false}
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                            onBlur={() => inputRef.current?.focus()}
+                            textAlignVertical="top"
+                            keyboardType="default"
                         />
                         <MarkDownToolBar onAction={handleMarkdownAction} />
                     </style.UserContentWriteWrapper>

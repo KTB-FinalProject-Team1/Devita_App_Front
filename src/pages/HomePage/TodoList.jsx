@@ -24,6 +24,17 @@ const TodoList = ({ selectedDate }) => {
     }));
     console.log('확인용',groupedTodos);
 
+    const [hoveredMission, setHoveredMission] = useState(null); // 현재 hover된 미션 ID
+
+    const handleMissionPressIn = (index) => {
+        setHoveredMission(index); // hover 상태 설정
+    };
+
+    const handleMissionPressOut = () => {
+        setHoveredMission(null); // hover 상태 해제
+    };
+
+
     const fetchData = async () => {
         try {
             const categoriesData = await getCategories();
@@ -70,7 +81,9 @@ const TodoList = ({ selectedDate }) => {
         const newStatus = !currentStatus;
 
         try {
-            await updateTodo(todoId, newStatus);
+            console.log('토글 상태 변환 시작', todoId);
+            await updateTodo(todoId);
+            console.log('토글 상태 변환 끝');
 
             setTodos((prevTodos) =>
                 prevTodos.map((todo) =>
@@ -126,6 +139,7 @@ const TodoList = ({ selectedDate }) => {
                         <style.MissionFrame>
                             {group.todos.map((todo) => (
                                 <TodoItem
+                                    color={group.color}
                                     key={todo.todoId}
                                     todo={todo}
                                     onCheckClick={() => handleToggleClick(todo.todoId, todo.status)}

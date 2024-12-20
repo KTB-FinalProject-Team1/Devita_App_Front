@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '@env';
 
-const BASE_URL = process.env.BASE_URL;
 console.log(BASE_URL);
 let isRefreshing = false; // 토큰 갱신 상태 플래그
 let failedQueue = [];

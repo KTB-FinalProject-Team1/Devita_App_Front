@@ -3,7 +3,7 @@ import styled from "styled-components/native";
 
 export const TotalStoryContainer = styled.View`
     width: 100%;
-    max-height: 400px;
+    max-height: 450px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -41,10 +41,15 @@ export const UserImage = styled.Image`
 export const UserContentWrapper = styled.View`
     height: 100%;
     width: 305px;
-
-
+    
 `;
-
+export const UserContentRealWrapper = styled.View`
+    width: 100%;
+    height: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`
 export const UserNameWrapper = styled.View`
     width: 100%;
     height: 20px;
@@ -58,13 +63,22 @@ export const UserName = styled.Text`
     font-weight: 600;
 `;
 
-export const UserTextWrapper = styled.TouchableOpacity`
+export const UserTextButton = styled.TouchableOpacity`
+    
+`
+
+export const UserTextWrapper = styled.ScrollView.attrs({
+    horizontal: false,
+    contentContainerStyle: {
+        flexGrow: 1,
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+    },
+})`
     width: 100%;
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    margin-top:5px;
+    margin-top: 5px;
 `;
+
 export const UserText = styled.Text`
     font-size: 14px;
     font-weight: 400;

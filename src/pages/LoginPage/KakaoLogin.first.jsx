@@ -20,23 +20,14 @@ function KakaoLoginFirst() {
             await AsyncStorage.removeItem('accessToken');
             await AsyncStorage.removeItem('refreshToken');
             await AsyncStorage.removeItem('nickname');
-
+            console.log(AsyncStorage.getItem('accessToken'), AsyncStorage.getItem('refreshToken'));
             // 서버 로그아웃 API 호출 (필요한 경우)
             try {
-                const token = await AsyncStorage.getItem('accessToken');
-                if (token) {
-                    await axios.post(
-                        'http://localhost:8080/api/v1/auth/logout',
-                        {},
-                        { headers: { Authorization: `Bearer ${token}` } }
-                    );
-                    console.log('서버 로그아웃 성공');
-                }
+                navigation.navigate('KakaoLogin');
             } catch (serverError) {
                 console.error('서버 로그아웃 실패:', serverError);
             }
 
-            Alert.alert('로그아웃 성공', '성공적으로 로그아웃되었습니다.');
         } catch (error) {
             console.error('로그아웃 실패:', error);
             Alert.alert('로그아웃 실패', '로그아웃 중 오류가 발생했습니다.');
@@ -45,16 +36,17 @@ function KakaoLoginFirst() {
     const unlinkKakaoAccount = async () => {
         try {
             const token = await AsyncStorage.getItem('accessToken');
-            if (!token) {
+            if (token) {
                 throw new Error('토큰이 없습니다. 로그인 상태를 확인하세요.');
             }
+            console.log(token,'hi');
 
             const response = await axios.post(
                 'https://kapi.kakao.com/v1/user/unlink',
                 {},
                 {
                     headers: {
-                        Authorization: `Bearer ${token}`,
+                        Authorization: `Bearer 8miJ9ddT5SgqY9syF48Q58KPpfKoSk5UAAAAAQo8I-cAAAGT39ZPQbG7d-HwzTGR`,
                     },
                 }
             );

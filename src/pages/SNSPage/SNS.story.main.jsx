@@ -3,6 +3,8 @@ import { Animated, View, TouchableOpacity} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import * as style from "./style/SNS.story.main";
 import Icon from 'react-native-vector-icons/FontAwesome';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Markdown from 'react-native-markdown-display';
 import profileImg1 from "../../assets/img/profile1.png";
 import leftImage from "../../assets/img/left.png";
 import ImageComponent from "./ImageComponent";
@@ -17,7 +19,24 @@ function SNSStoryMain({ route }) {
     const { sns } = route.params;
     const [liked, setLiked] = useState(false);
     const [isFollowing, setIsFollowing] = useState(false);
+    const [nowUser, setNowUser] = useState(""); // 초기값 설정
     const navigation = useNavigation();
+
+    useEffect(() => {
+        const fetchNowUser = async () => {
+            try {
+                const storedNickname = await AsyncStorage.getItem("nickname");
+                setNowUser(storedNickname || ""); // nickname 설정
+            } catch (error) {
+                console.error("AsyncStorage nickname 가져오기 실패:", error);
+            }
+        };
+
+        fetchNowUser();
+    }, []);
+
+    console.log("나", nowUser, sns.writerNickname, nowUser === sns.writerNickname);
+
 
 
     const toggleLike = async () => {
@@ -81,13 +100,27 @@ function SNSStoryMain({ route }) {
                     <style.UserNameWrapper>
                         <style.UserName>{sns.writerNickname}</style.UserName>
                     </style.UserNameWrapper>
-                    <style.FollowButton onPress={toggleFollow} color={isFollowing ? '#7DB1FF' : '#e9e9e9'}>
-                        <style.FollowText color={isFollowing? 'white':'gray'}>{isFollowing ? '팔로잉' : '팔로우'}</style.FollowText>
-                    </style.FollowButton>
+                    {sns?.writerNickname !== nowUser && (
+                        <style.FollowButton
+                            onPress={toggleFollow}
+                            style={{
+                                backgroundColor: sns?.isFollowed ? '#7DB1FF' : '#e9e9e9',
+                            }}
+                        >
+                            <style.FollowText
+                                style={{
+                                    color: sns?.isFollowed ? 'white' : 'gray',
+                                }}
+                            >
+                                {sns?.isFollowed ? '팔로잉' : '팔로우'}
+                            </style.FollowText>
+                        </style.FollowButton>
+                    )}
+
                 </style.UserImageWrapper>
                 <style.UserContentWrapper>
                     <style.UserTextWrapper>
-                        <style.UserText>{sns.description}</style.UserText>
+                        <Markdown>{sns.description}</Markdown>
                     </style.UserTextWrapper>
                     <style.UserImagesContainer>
                         <style.UserImagesWrapper>
@@ -99,14 +132,14 @@ function SNSStoryMain({ route }) {
                     <style.UserLikeWrapper>
                         <style.UserLike
                             onPress={toggleLike}
-                            color={liked ? '#7DB1FF' : '#e9e9e9'}
+                            color={sns.isLiked ? '#7DB1FF' : '#e9e9e9'}
                         >
                             <Icon
-                                name={liked ? 'heart' : 'heart-o'}
+                                name={sns.isLiked ? 'heart' : 'heart-o'}
                                 size={15}
-                                color={liked ? 'white' : 'gray'}
+                                color={sns.isLiked ? 'white' : 'gray'}
                             />
-                            <style.UserLikeText color={liked ? 'white' : 'gray'}>
+                            <style.UserLikeText color={sns.isLiked ? 'white' : 'gray'}>
                                 {sns.likes}k
                             </style.UserLikeText>
                         </style.UserLike>

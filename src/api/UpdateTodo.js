@@ -30,6 +30,7 @@ export const UpdateTodo = async (todoId) => {
 };
 
 const updateTodo = async (todoId) => {
+    console.log('api 호출',todoId);
     return requestHandler({
         method: 'PUT',
         data: {},

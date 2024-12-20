@@ -17,6 +17,7 @@
       "bundleIdentifier": "com.devita"
     },
     "android": {
+
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },

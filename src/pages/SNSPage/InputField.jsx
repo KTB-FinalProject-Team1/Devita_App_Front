@@ -1,49 +1,38 @@
 import React from 'react';
-import { TextInput, View, Text, StyleSheet } from 'react-native';
+import { MentionInput } from 'react-native-controlled-mentions';
+import styled from 'styled-components/native';
 
-const InputField = ({
-                        label,
-                        value,
-                        onChangeText,
-                        placeholder,
-                        multiline = false,
-                        style: customStyle = {},
-                        ...rest
-                    }) => {
+const StyledInputContainer = styled.View`
+  width: 100%;
+  min-height: 100px;
+  background-color: white;
+`;
+
+const InputField = ({ value, onChangeText, placeholder, multiline = true, autoFocus = false }) => {
     return (
-        <View style={[styles.container, customStyle]}>
-            {label && <Text style={styles.label}>{label}</Text>}
-            <TextInput
-                style={[styles.input, multiline && styles.multilineInput]}
+        <StyledInputContainer>
+            <MentionInput
                 value={value}
-                onChangeText={onChangeText}
+                onChange={onChangeText}
                 placeholder={placeholder}
                 multiline={multiline}
-                {...rest}
+                autoFocus={autoFocus}
+                numberOfLines={5}
+                style={{
+                    flex: 1,
+                    padding: 10,
+                    fontSize: 16,
+                    color: '#333',
+                    textAlignVertical: 'top',
+                }}
+                containerStyle={{
+                    flex: 1,
+                }}
+                autoCorrect={false}
+                autoCapitalize="none"
             />
-        </View>
+        </StyledInputContainer>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        marginTop: 10,
-        height:'80%',
-    },
-    label: {
-        fontSize: 14,
-        color: '#555',
-        marginBottom: 5,
-    },
-    input: {
-        padding: 15,
-        fontSize: 16,
-        height: '100%'
-    },
-    multilineInput: {
-        minHeight: 100,
-        textAlignVertical: 'top',
-    },
-});
 
 export default InputField;

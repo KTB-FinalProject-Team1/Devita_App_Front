@@ -16,3 +16,8 @@ export const postsState = atom({
     key: 'postsState', // 고유 키
     default: [],       // 초기값은 빈 배열
 });
+
+export const friendPostsState = atom({
+    key: 'friendPostsState',
+    default: [],
+});

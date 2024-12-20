@@ -50,7 +50,7 @@ export const MissionTotalWrapper = styled.View`
 export const CategoryWrapper = styled.View`
     width: 100%;
     border-radius: 12px;
-    border: 1.5px solid ${props => props.color || '#000'}; // 기본값: #000
+    border: 1.5px solid ${props => props.color}; // 기본값: #000
     background-color: ${props => {
     const hexToRgba = (hex, alpha) => {
         if (!hex || hex.length !== 7) return `rgba(0, 0, 0, ${alpha})`; // 안전한 기본값
@@ -120,9 +120,10 @@ export const MissionWrapper = styled.View`
     justify-content: flex-start;
   
 `;
-export const MissionTextWrapper = styled.View`
-    width:  266px;
+export const MissionTextWrapper = styled.TouchableOpacity`
+    width: 255px;
     margin-left: 5px;
+    margin-right: 15px;
 `
 export const MissionText = styled.Text`
 
@@ -137,7 +138,7 @@ export const MissionCheckWrapper = styled.TouchableOpacity`
     height: 20px;
     border-radius: 10px; /* 원형 */
     border-width: 2px;
-    border-color: ${(props) => props.isChecked ? props.color : '#aaa'}; /* 선택 여부에 따른 색상 */
+    border-color: ${(props)=> props.color}; /* 선택 여부에 따른 색상 */
     background-color: ${(props) => props.isChecked ? props.color || '#000' : 'transparent'}; /* 체크된 상태일 때 배경 색상 */
     align-items: center;
     justify-content: center;

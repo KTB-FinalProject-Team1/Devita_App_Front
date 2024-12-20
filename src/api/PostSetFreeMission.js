@@ -28,7 +28,7 @@ const PostSetFreeMission = async (selectedMission) => {
 const postSetFreeMission = async (selectedMission) => {
     return requestHandler({
         method: 'POST',
-        data: { selectedMission },
+        data:  selectedMission ,
         endpoint: `/api/v1/mission/free/save`,
         successMessage: '미션 리스트 추가하기 성공',
         errorMessage: '미션 리스트 추가하기 실패',

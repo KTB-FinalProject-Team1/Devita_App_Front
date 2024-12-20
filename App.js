@@ -5,12 +5,13 @@ import { Buffer } from 'buffer';
 global.Buffer = Buffer;
 import React, {useEffect} from 'react';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { SafeAreaView, StyleSheet, LogBox } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Text, View } from 'react-native';
 import { RecoilRoot } from 'recoil';
 import { ThemeProvider } from 'styled-components/native';
+import AuthCheck from './src/pages/LoginPage/AuthCheck';
 import TabBar from './src/components/TapBar/TapBar';
 import TodayMissionCheck from "./src/pages/HomePage/TodayMissionCheck";
 import KakaoLoginFirst from "./src/pages/LoginPage/KakaoLogin.first";
@@ -22,6 +23,12 @@ import SearchFriend from "./src/pages/SNSPage/SearchFriend";
 import OnboardingInfo from "./src/pages/OnboardingPage/Onboarding.info";
 import OnboardingNickname from "./src/pages/OnboardingPage/Onboarding.nickname";
 import OnboardingStack from "./src/pages/OnboardingPage/Onboarding.stack";
+import axios from "axios";
+
+LogBox.ignoreLogs([
+    'Text strings must be rendered within a <Text> component', // Text 관련 에러 무시
+    'Require cycle:', // 순환 참조 관련 경고 무시
+]);
 
 
 // 테마 설정
@@ -57,14 +64,6 @@ class ErrorBoundary extends React.Component {
     }
 };
 
-const clearStorageOnStart = async () => {
-    try {
-        await AsyncStorage.clear(); // 모든 데이터를 삭제
-        console.log('AsyncStorage 초기화 완료: 자동 로그인 방지');
-    } catch (error) {
-        console.error('AsyncStorage 초기화 실패:', error);
-    }
-};
 
 
 

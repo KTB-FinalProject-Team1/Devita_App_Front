@@ -4,7 +4,7 @@ import { WebView } from "react-native-webview";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BASE_URL } from "@env";
-console.log(BASE_URL);
+console.log(BASE_URL,'hi');
 
 
 const KakaoLoginWebView = ({ navigation }) => {
@@ -21,7 +21,7 @@ const KakaoLoginWebView = ({ navigation }) => {
                 // 서버에 Authorization Code 전달
                 const response = await axios.post(
                     `${BASE_URL}/api/v1/auth/user/info`,
-                    { kakaoAccessToken: code }
+                    { authorizationCode: code }
                 );
                 const Infodata = response.data.data;
 

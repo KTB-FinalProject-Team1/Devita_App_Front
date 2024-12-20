@@ -6,13 +6,15 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import SNSFeed from "./SNS.feed";
 import SNSStory from "./SNS.story";
 import GetPosts from "../../api/GetPosts";
-import ExSNS from "../../assets/DummyData/ExSNS";
 import { useRecoilState } from 'recoil';
+import { friendPostsState } from '../../recoil/atoms'
 import { postsState } from '../../recoil/atoms'
+import getFriendsPost from "../../api/GetFriendsPost";
 
 
 function SNSPage() {
     const [posts, setPosts] = useRecoilState(postsState); // Recoil 상태 사용
+    const [friendPosts, setFriendPosts] = useRecoilState(friendPostsState);
     const [loading, setLoading] = useState(false);
     const navigation = useNavigation();
 
@@ -35,16 +37,31 @@ function SNSPage() {
             setLoading(false);
         }
     };
+    // 친구 게시물 가져오기
+    const fetchFriendPosts = async () => {
+        setLoading(true);
+        try {
+            const response = await getFriendsPost();
+            const content = response.content;
+            setFriendPosts(content); // 친구 게시물 상태에 저장
+            console.log('Friend Posts 불러오기 성공:', content);
+        } catch (error) {
+            console.error('Friend Posts 불러오기 실패:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     useEffect(() => {
-        fetchPosts(); // 초기 호출
-
-        {/*const interval = setInterval(() => {
-            fetchPosts(); // 일정 시간마다 호출
-        }, 30000); // 30초마다 호출
-
-        return () => clearInterval(interval);*/}// 컴포넌트 언마운트 시 인터벌 정리
+        fetchPosts();
+        fetchFriendPosts();
     }, []);
+
+    const refreshSnsData = () => {
+        fetchPosts();
+        fetchFriendPosts();// 최신 데이터 갱신
+    };
 
     return (
 
@@ -52,21 +69,20 @@ function SNSPage() {
             <style.TitleWrapper>
                 <style.TitleText>피드</style.TitleText>
                 <style.SearchButton onPress={onClickSearch}>
-                    <Icon name="search" size={20} color="gray" />
+                    <Icon name="search" size={20} color="gray"/>
                 </style.SearchButton>
             </style.TitleWrapper>
             <style.FeedWrapper
             >
-                {posts.map((sns, index) => (
-                    <SNSFeed key={index} sns={sns} />
+                {friendPosts.map((sns, index) => (
+                    <SNSFeed key={index} sns={sns}/>
                 ))}
 
             </style.FeedWrapper>
             <style.StoryWrapper>
                 {posts.map((sns, index) => (
-                    <SNSStory key={index} sns={sns} />
+                    <SNSStory key={index} sns={sns} refreshSnsData={refreshSnsData}/>
                 ))}
-
             </style.StoryWrapper>
 
             <style.TodoCategoryAddButton onPress={onClickPlus}>

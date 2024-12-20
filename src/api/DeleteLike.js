@@ -1,14 +1,14 @@
 import requestHandler from "./requestHandler";
 
 
-const deleteLike = async (postId) => {
+const deletePost = async (postId) => {
     return requestHandler({
         method: 'DELETE',
         endpoint: `/api/v1/post/${postId}`,
-        successMessage: '좋아요 취소 성공',
-        errorMessage: '좋아요 취소 실패',
+        successMessage: 'Post 삭제 취소 성공',
+        errorMessage: 'Post 삭제 취소 실패',
     });
 };
 
-export default deleteLike;
+export default deletePost;
 

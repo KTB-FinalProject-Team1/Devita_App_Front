@@ -247,7 +247,7 @@ export const MissionEachWrapper = styled.TouchableOpacity`
 `;
 
 export const MissionEachText = styled.Text`
-  font-size: 16px;
+  font-size: 10px;
     font-weight:500;
 `;
 

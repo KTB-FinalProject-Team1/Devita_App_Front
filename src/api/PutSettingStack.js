@@ -1,6 +1,6 @@
 import axios from 'axios';
 import requestHandler from "./requestHandler";
-const BASE_URL = process.env.BASE_URL || "http://localhost:8080";
+import { BASE_URL } from '@env';
 
 const SettingStack = async (selectedCategories) => {
 
